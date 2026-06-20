@@ -47,6 +47,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Register Service Worker for PWA Installability
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed', err));
+    }
+
     checkAuth();
 
     function checkAuth() {
@@ -151,12 +156,38 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Open Modal
     addBtn.addEventListener('click', () => {
         addModal.classList.remove('hidden');
+        history.pushState({ modalOpen: true }, ""); // Add to browser history
     });
 
-    closeBtn.addEventListener('click', () => {
-        addModal.classList.add('hidden');
+    // Close Modal Function
+    function closeModal() {
+        if (!addModal.classList.contains('hidden')) {
+            addModal.classList.add('hidden');
+            // Remove state if we are closing via a button
+            if (history.state && history.state.modalOpen) {
+                history.back();
+            }
+        }
+    }
+
+    // Close on X button
+    closeBtn.addEventListener('click', closeModal);
+
+    // Close on click outside (overlay)
+    addModal.addEventListener('click', (e) => {
+        if (e.target === addModal) {
+            closeModal();
+        }
+    });
+
+    // Handle System Back Button
+    window.addEventListener('popstate', (e) => {
+        if (!addModal.classList.contains('hidden')) {
+            addModal.classList.add('hidden');
+        }
     });
 
     addTaskForm.addEventListener('submit', async (e) => {
@@ -167,7 +198,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const contentType = document.getElementById('new-type').value;
         const content = document.getElementById('new-content').value;
 
+        // Ensure we close without triggering back loop
         addModal.classList.add('hidden');
+        if (history.state && history.state.modalOpen) history.back();
+        
         addTaskForm.reset();
         
         try {
