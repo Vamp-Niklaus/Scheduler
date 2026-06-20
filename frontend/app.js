@@ -194,9 +194,25 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         if (!currentUser) return;
         
-        const title = document.getElementById('new-title').value;
+        const title = document.getElementById('new-title').value.trim();
         const contentType = document.getElementById('new-type').value;
-        const content = document.getElementById('new-content').value;
+        const content = document.getElementById('new-content').value.trim();
+
+        // Validation for Auto-Title
+        if (!title) {
+            if (contentType !== 'url') {
+                showToast("Title is required for Text or Image.", true);
+                return;
+            }
+            
+            const isSupported = ["leetcode.com", "naukri.com/code360", "geeksforgeeks.org", "youtube.com", "youtu.be"]
+                .some(domain => content.includes(domain));
+                
+            if (!isSupported) {
+                showToast("Title is required for this URL.", true);
+                return;
+            }
+        }
 
         // Ensure we close without triggering back loop
         addModal.classList.add('hidden');

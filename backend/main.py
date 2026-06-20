@@ -41,9 +41,12 @@ class UserResponse(BaseModel):
     name: str
     username: str
 
+import urllib.request
+import re
+
 # --- Task Models ---
 class RevisionTask(BaseModel):
-    title: str
+    title: str = ""
     content_type: str = Field(..., description="url, text, or image")
     content: str
     stage: int = 0
@@ -56,15 +59,12 @@ class TaskResponse(RevisionTask):
 # --- Auth Endpoints ---
 @app.post("/register", response_model=UserResponse)
 async def register(user: UserRegister):
-    # Check if username taken
     existing_user = await users_collection.find_one({"username": user.username})
     if existing_user:
         raise HTTPException(status_code=400, detail="Username already taken")
     
-    # Save plain text password as requested by user
     user_dict = user.dict()
     await users_collection.insert_one(user_dict)
-    
     return UserResponse(name=user.name, username=user.username)
 
 @app.post("/login", response_model=UserResponse)
@@ -74,6 +74,43 @@ async def login(user: UserLogin):
         raise HTTPException(status_code=401, detail="Invalid username or password")
     
     return UserResponse(name=existing_user["name"], username=existing_user["username"])
+
+def extract_title_from_url(url: str) -> str:
+    """Extracts a readable title from supported URLs."""
+    try:
+        # LeetCode
+        if "leetcode.com/problems/" in url:
+            match = re.search(r'leetcode\.com/problems/([^/]+)', url)
+            if match:
+                return match.group(1).replace('-', ' ').title()
+                
+        # Code360 (Naukri)
+        elif "naukri.com/code360/problems/" in url:
+            match = re.search(r'naukri\.com/code360/problems/([^/_]+)', url)
+            if match:
+                return match.group(1).replace('-', ' ').title()
+                
+        # GeeksForGeeks
+        elif "geeksforgeeks.org/problems/" in url:
+            match = re.search(r'geeksforgeeks\.org/problems/([^/]+)', url)
+            if match:
+                return match.group(1).replace('-', ' ').title()
+                
+        # YouTube
+        elif "youtube.com" in url or "youtu.be" in url:
+            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(req, timeout=3) as response:
+                html = response.read().decode('utf-8', errors='ignore')
+                match = re.search(r'<title>(.*?)</title>', html, re.IGNORECASE)
+                if match:
+                    title = match.group(1).replace('- YouTube', '').strip()
+                    return title if title else "YouTube Video"
+            return "YouTube Video"
+            
+    except Exception as e:
+        print(f"Title extraction error: {e}")
+        
+    return "Untitled Link"
 
 # --- Task Endpoints ---
 def format_task(doc) -> TaskResponse:
@@ -88,6 +125,8 @@ def format_task(doc) -> TaskResponse:
             title = f"▶️ {title}"
         elif "geeksforgeeks.org" in content:
             title = f"🤓 {title}"
+        elif "naukri.com" in content:
+            title = f"🥷 {title}"
         elif "github.com" in content:
             title = f"🐙 {title}"
         else:
@@ -113,6 +152,12 @@ async def create_task(task: RevisionTask, x_username: str = Header(...)):
     user = await users_collection.find_one({"username": x_username})
     if not user:
         raise HTTPException(status_code=401, detail="Invalid user")
+
+    # Auto-extract title if missing
+    if not task.title.strip() and task.content_type == "url":
+        task.title = extract_title_from_url(task.content)
+    elif not task.title.strip():
+        raise HTTPException(status_code=400, detail="Title is required")
 
     task.username = x_username
     task.next_revision = calculate_fixed_schedule(0)
