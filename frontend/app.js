@@ -387,10 +387,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.getElementById('task-title').textContent = task.title;
                     
                     let stageText = `Stage ${task.stage}`;
-                    if (task.stage === 0) stageText = "New (Due in 3 Days)";
-                    else if (task.stage === 1) stageText = "Stage 1 (Due in 7 Days)";
-                    else if (task.stage === 2) stageText = "Stage 2 (Due in 21 Days)";
-                    else stageText = `Stage ${task.stage} (Load Balanced)`;
+                    if (task.stage === 0) stageText = "New (Due Tomorrow)";
+                    else if (task.stage === 1) stageText = "Stage 1 (Due in 3 Days)";
+                    else if (task.stage === 2) stageText = "Stage 2 (Due in 7 Days)";
+                    else stageText = `Stage ${task.stage} (Load Balanced 21+ Days)`;
                     
                     document.getElementById('task-stage-badge').textContent = stageText;
                     
