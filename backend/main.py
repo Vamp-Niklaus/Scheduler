@@ -118,33 +118,33 @@ def format_task(doc) -> TaskResponse:
     title = doc["title"]
     content = doc.get("content", "").lower()
     content_type = doc.get("content_type", "")
-    bg_color = "#1E293B" # Default slate
+    bg_color = "#FF1E293B" # Default slate
     
     if content_type == "url":
         if "leetcode.com" in content:
             title = f"👨‍💻 {title}"
-            bg_color = "#FFA116"
+            bg_color = "#FFFFA116"
         elif "youtube.com" in content or "youtu.be" in content:
             title = f"▶️ {title}"
-            bg_color = "#FF0000"
+            bg_color = "#FFFF0000"
         elif "geeksforgeeks.org" in content:
             title = f"🤓 {title}"
-            bg_color = "#2F8D46"
+            bg_color = "#FF2F8D46"
         elif "naukri.com" in content:
             title = f"💻 {title}"
-            bg_color = "#2563EB"
+            bg_color = "#FF2563EB"
         elif "github.com" in content:
             title = f"🐙 {title}"
-            bg_color = "#333333"
+            bg_color = "#FF333333"
         else:
             title = f"🌐 {title}"
-            bg_color = "#0F172A"
+            bg_color = "#FF0F172A"
     elif content_type == "text":
         title = f"📝 {title}"
-        bg_color = "#6366F1"
+        bg_color = "#FF6366F1"
     elif content_type == "image":
         title = f"🖼️ {title}"
-        bg_color = "#8B5CF6"
+        bg_color = "#FF8B5CF6"
 
     return TaskResponse(
         id=str(doc["_id"]),
