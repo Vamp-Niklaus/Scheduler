@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Revision Scheduler</title>
+    <!-- Google Fonts for Modern Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1>Up Next</h1>
+                <p id="current-date">Today's Focus</p>
+            </div>
+            <button class="icon-btn" id="add-btn"><i class="fa-solid fa-plus"></i></button>
+        </header>
+
+        <!-- Main Content Area: Dashboard -->
+        <main class="dashboard" id="dashboard-view">
+            <!-- Loading State -->
+            <div id="loading-state" class="hidden">
+                <div class="spinner"></div>
+                <p>Finding next task...</p>
+            </div>
+
+            <!-- Active Task Card -->
+            <div class="task-card" id="active-task-card">
+                <div class="task-badge" id="task-stage-badge">Stage 1: 3 Days</div>
+                <h2 id="task-title" class="task-title">LeetCode: Two Sum</h2>
+                <div class="task-type">
+                    <i id="task-icon" class="fa-solid fa-code"></i>
+                    <span id="task-source">Leetcode</span>
+                </div>
+                
+                <div class="task-actions">
+                    <a href="#" id="task-link" class="action-btn primary-btn" target="_blank">
+                        Open Material <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </a>
+                </div>
+
+                <!-- Completion Area -->
+                <div class="completion-area">
+                    <p class="completion-text">Finished your revision?</p>
+                    <button id="mark-done-btn" class="done-btn">
+                        <i class="fa-solid fa-check-double"></i> Mark as Done
+                    </button>
+                </div>
+            </div>
+
+            <!-- No Tasks State -->
+            <div id="empty-state" class="empty-state hidden">
+                <i class="fa-solid fa-mug-hot"></i>
+                <h2>All caught up!</h2>
+                <p>No revisions scheduled for right now.</p>
+            </div>
+        </main>
+
+        <!-- Add Task Modal -->
+        <div class="modal-overlay hidden" id="add-modal">
+            <div class="modal-content glass-panel">
+                <div class="modal-header">
+                    <h2>Add New Revision</h2>
+                    <button class="icon-btn close-btn" id="close-modal-btn"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <form id="add-task-form">
+                    <div class="form-group">
+                        <label for="new-title">Title</label>
+                        <input type="text" id="new-title" placeholder="e.g. Reverse Linked List" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="new-type">Content Type</label>
+                        <select id="new-type" required>
+                            <option value="url">Web Link (Leetcode, GFG, YT)</option>
+                            <option value="text">Text Notes</option>
+                            <option value="image">Image Path</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="new-content">Content / URL</label>
+                        <textarea id="new-content" rows="3" placeholder="https://leetcode.com/..." required></textarea>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Schedule Initial Revision</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Notification Toast -->
+        <div id="toast" class="toast hidden">
+            <i class="fa-solid fa-circle-check"></i>
+            <span id="toast-message">Task updated!</span>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
