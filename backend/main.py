@@ -24,6 +24,11 @@ app.add_middleware(
 async def startup_event():
     await init_db()
 
+@app.get("/ping")
+async def keep_alive():
+    """Dummy endpoint to keep the Render server awake."""
+    return {"status": "awake", "timestamp": datetime.utcnow().isoformat()}
+
 # Models
 class RevisionTask(BaseModel):
     title: str
