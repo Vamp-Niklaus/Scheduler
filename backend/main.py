@@ -131,7 +131,7 @@ def format_task(doc) -> TaskResponse:
             title = f"🤓 {title}"
             bg_color = "#2F8D46"
         elif "naukri.com" in content:
-            title = f"🥷 {title}"
+            title = f"💻 {title}"
             bg_color = "#2563EB"
         elif "github.com" in content:
             title = f"🐙 {title}"
