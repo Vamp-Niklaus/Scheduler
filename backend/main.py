@@ -55,6 +55,7 @@ class RevisionTask(BaseModel):
 
 class TaskResponse(RevisionTask):
     id: str
+    bg_color: Optional[str] = None
 
 # --- Auth Endpoints ---
 @app.post("/register", response_model=UserResponse)
@@ -117,24 +118,33 @@ def format_task(doc) -> TaskResponse:
     title = doc["title"]
     content = doc.get("content", "").lower()
     content_type = doc.get("content_type", "")
+    bg_color = "#1E293B" # Default slate
     
     if content_type == "url":
         if "leetcode.com" in content:
             title = f"👨‍💻 {title}"
+            bg_color = "#FFA116"
         elif "youtube.com" in content or "youtu.be" in content:
             title = f"▶️ {title}"
+            bg_color = "#FF0000"
         elif "geeksforgeeks.org" in content:
             title = f"🤓 {title}"
+            bg_color = "#2F8D46"
         elif "naukri.com" in content:
             title = f"🥷 {title}"
+            bg_color = "#2563EB"
         elif "github.com" in content:
             title = f"🐙 {title}"
+            bg_color = "#333333"
         else:
             title = f"🌐 {title}"
+            bg_color = "#0F172A"
     elif content_type == "text":
         title = f"📝 {title}"
+        bg_color = "#6366F1"
     elif content_type == "image":
         title = f"🖼️ {title}"
+        bg_color = "#8B5CF6"
 
     return TaskResponse(
         id=str(doc["_id"]),
@@ -143,7 +153,8 @@ def format_task(doc) -> TaskResponse:
         content=doc["content"],
         stage=doc["stage"],
         next_revision=doc["next_revision"],
-        username=doc.get("username", "")
+        username=doc.get("username", ""),
+        bg_color=bg_color
     )
 
 @app.post("/tasks", response_model=TaskResponse)
@@ -187,7 +198,8 @@ async def get_next_task(username: Optional[str] = None, x_username: Optional[str
         "title": "All caught up!",
         "content_type": "text",
         "content": "",
-        "stage": -1
+        "stage": -1,
+        "bg_color": "#00000000"
     }
 
 @app.post("/tasks/{task_id}/done", response_model=TaskResponse)
