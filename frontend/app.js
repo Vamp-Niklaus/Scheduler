@@ -1,3 +1,6 @@
+const API_URL = "https://scheduler-5y9n.onrender.com";
+let currentTaskId = null;
+
 document.addEventListener('DOMContentLoaded', () => {
     // UI Elements
     const dateElement = document.getElementById('current-date');
@@ -35,44 +38,77 @@ document.addEventListener('DOMContentLoaded', () => {
         addModal.classList.add('hidden');
     });
 
-    // Handle Form Submit (Mock for now)
-    addTaskForm.addEventListener('submit', (e) => {
+    // Handle Form Submit
+    addTaskForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        // Hide modal
+        const title = document.getElementById('new-title').value;
+        const contentType = document.getElementById('new-type').value;
+        const content = document.getElementById('new-content').value;
+
+        // Hide modal and show loading
         addModal.classList.add('hidden');
         addTaskForm.reset();
         
-        // Show success toast
-        showToast("New revision scheduled!");
-        
-        // Mock showing the new task
-        setTimeout(() => {
-            fetchCurrentTask();
-        }, 1000);
+        try {
+            const res = await fetch(`${API_URL}/tasks`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: title,
+                    content_type: contentType,
+                    content: content
+                })
+            });
+
+            if (res.ok) {
+                showToast("New revision scheduled!");
+                fetchCurrentTask();
+            } else {
+                showToast("Failed to schedule task.");
+            }
+        } catch (error) {
+            console.error(error);
+            showToast("Network error.");
+        }
     });
 
     // Handle Mark Done
-    markDoneBtn.addEventListener('click', () => {
+    markDoneBtn.addEventListener('click', async () => {
+        if (!currentTaskId) return;
+
         // Show loading state
         activeTaskCard.classList.add('hidden');
         loadingState.classList.remove('hidden');
         
-        // Simulate API call to backend for 1.5 seconds
-        setTimeout(() => {
-            showToast("Revision complete! Rescheduled.");
-            
-            // Fire local notification if permission granted
-            if ("Notification" in window && Notification.permission === "granted") {
-                new Notification("Revision Complete!", {
-                    body: "Task has been successfully rescheduled based on spaced repetition."
-                });
-            }
+        try {
+            const res = await fetch(`${API_URL}/tasks/${currentTaskId}/done`, {
+                method: 'POST'
+            });
 
-            // Show empty state (assuming no more tasks for today)
+            if (res.ok) {
+                showToast("Revision complete! Rescheduled.");
+                
+                // Fire local notification if permission granted
+                if ("Notification" in window && Notification.permission === "granted") {
+                    new Notification("Revision Complete!", {
+                        body: "Task has been successfully rescheduled based on spaced repetition."
+                    });
+                }
+
+                // Fetch next immediately
+                fetchCurrentTask();
+            } else {
+                showToast("Failed to update task.");
+                loadingState.classList.add('hidden');
+                activeTaskCard.classList.remove('hidden');
+            }
+        } catch (error) {
+            console.error(error);
+            showToast("Network error.");
             loadingState.classList.add('hidden');
-            emptyState.classList.remove('hidden');
-        }, 1500);
+            activeTaskCard.classList.remove('hidden');
+        }
     });
 
     function showToast(msg) {
@@ -84,17 +120,59 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
 
-    // Mock initial fetch
-    function fetchCurrentTask() {
-        // In the real app, this will fetch from FastAPI / MongoDB
+    // Fetch the next due task
+    async function fetchCurrentTask() {
         loadingState.classList.remove('hidden');
         activeTaskCard.classList.add('hidden');
         emptyState.classList.add('hidden');
 
-        setTimeout(() => {
+        try {
+            const res = await fetch(`${API_URL}/tasks/next`);
+            if (res.ok) {
+                const task = await res.json();
+                if (task) {
+                    document.getElementById('task-title').textContent = task.title;
+                    
+                    // Stage logic display
+                    let stageText = `Stage ${task.stage}`;
+                    if (task.stage === 0) stageText = "New (Due in 3 Days)";
+                    else if (task.stage === 1) stageText = "Stage 1 (Due in 7 Days)";
+                    else if (task.stage === 2) stageText = "Stage 2 (Due in 21 Days)";
+                    else stageText = `Stage ${task.stage} (Load Balanced)`;
+                    
+                    document.getElementById('task-stage-badge').textContent = stageText;
+                    
+                    const linkBtn = document.getElementById('task-link');
+                    if (task.content_type === 'url') {
+                        linkBtn.href = task.content;
+                        linkBtn.innerHTML = `Open Material <i class="fa-solid fa-arrow-up-right-from-square"></i>`;
+                        linkBtn.style.display = 'inline-flex';
+                    } else if (task.content_type === 'text') {
+                        linkBtn.href = '#';
+                        linkBtn.onclick = () => alert("Notes: " + task.content);
+                        linkBtn.innerHTML = `View Notes <i class="fa-solid fa-note-sticky"></i>`;
+                        linkBtn.style.display = 'inline-flex';
+                    } else {
+                        linkBtn.style.display = 'none';
+                    }
+                    
+                    currentTaskId = task.id;
+                    loadingState.classList.add('hidden');
+                    activeTaskCard.classList.remove('hidden');
+                } else {
+                    // task is null, nothing is due
+                    loadingState.classList.add('hidden');
+                    emptyState.classList.remove('hidden');
+                }
+            } else {
+                loadingState.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+            }
+        } catch (error) {
+            console.error(error);
             loadingState.classList.add('hidden');
-            activeTaskCard.classList.remove('hidden');
-        }, 800);
+            emptyState.classList.remove('hidden');
+        }
     }
 
     // Initialize
