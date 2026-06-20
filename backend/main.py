@@ -102,7 +102,7 @@ async def create_task(task: RevisionTask, x_username: str = Header(...)):
     created_task = await revisions_collection.find_one({"_id": result.inserted_id})
     return format_task(created_task)
 
-@app.get("/tasks/next", response_model=Optional[TaskResponse])
+@app.get("/tasks/next")
 async def get_next_task(username: Optional[str] = None, x_username: Optional[str] = Header(None)):
     target_username = username or x_username
     if not target_username:
@@ -115,7 +115,15 @@ async def get_next_task(username: Optional[str] = None, x_username: Optional[str
     )
     if task:
         return format_task(task)
-    return None
+    
+    # Return dummy task so KWGT doesn't crash on null
+    return {
+        "id": "",
+        "title": "All caught up!",
+        "content_type": "text",
+        "content": "",
+        "stage": -1
+    }
 
 @app.post("/tasks/{task_id}/done", response_model=TaskResponse)
 async def mark_task_done(task_id: str, x_username: str = Header(...)):

@@ -247,7 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (res.ok) {
                 const task = await res.json();
-                if (task) {
+                if (task && task.id) {
                     document.getElementById('task-title').textContent = task.title;
                     
                     let stageText = `Stage ${task.stage}`;
