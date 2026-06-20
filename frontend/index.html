@@ -89,6 +89,9 @@
                     <button id="mark-done-btn" class="done-btn">
                         <i class="fa-solid fa-check-double"></i> Mark as Done
                     </button>
+                    <button id="delete-task-init-btn" style="margin-top: 10px; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); width: 100%; padding: 12px; border-radius: 12px; cursor: pointer; transition: all 0.2s ease; font-weight: 600; font-family: inherit;">
+                        <i class="fa-solid fa-trash"></i> Delete Permanently
+                    </button>
                 </div>
             </div>
 
@@ -146,6 +149,26 @@
         <div id="toast" class="toast hidden">
             <i class="fa-solid fa-circle-check"></i>
             <span id="toast-message">Task updated!</span>
+        </div>
+    </div>
+
+    <!-- Delete Task Modal (Captcha) -->
+    <div id="delete-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>Confirm Deletion</h2>
+                <button class="icon-btn" id="close-delete-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <p>To permanently delete this task, please solve the simple math problem below:</p>
+                <form id="delete-task-form">
+                    <div class="form-group captcha-group">
+                        <label id="captcha-question">What is X + Y?</label>
+                        <input type="number" id="captcha-answer" required placeholder="Enter the sum">
+                    </div>
+                    <button type="submit" id="confirm-delete-btn" class="submit-btn danger-btn">Permanently Delete</button>
+                </form>
+            </div>
         </div>
     </div>
 

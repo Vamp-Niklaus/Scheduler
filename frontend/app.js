@@ -280,6 +280,77 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // --- Delete Task Logic (Math Captcha) ---
+    const deleteInitBtn = document.getElementById('delete-task-init-btn');
+    const deleteModal = document.getElementById('delete-modal');
+    const closeDeleteBtn = document.getElementById('close-delete-btn');
+    const deleteTaskForm = document.getElementById('delete-task-form');
+    const captchaQuestion = document.getElementById('captcha-question');
+    const captchaAnswer = document.getElementById('captcha-answer');
+    
+    let expectedCaptchaAnswer = 0;
+
+    function generateCaptcha() {
+        const num1 = Math.floor(Math.random() * 10) + 1;
+        const num2 = Math.floor(Math.random() * 10) + 1;
+        expectedCaptchaAnswer = num1 + num2;
+        captchaQuestion.textContent = `What is ${num1} + ${num2}?`;
+        captchaAnswer.value = '';
+    }
+
+    deleteInitBtn.addEventListener('click', () => {
+        generateCaptcha();
+        deleteModal.classList.remove('hidden');
+    });
+
+    closeDeleteBtn.addEventListener('click', () => {
+        deleteModal.classList.add('hidden');
+    });
+
+    deleteModal.addEventListener('click', (e) => {
+        if (e.target === deleteModal) {
+            deleteModal.classList.add('hidden');
+        }
+    });
+
+    deleteTaskForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const userAnswer = parseInt(captchaAnswer.value, 10);
+        if (userAnswer !== expectedCaptchaAnswer) {
+            showToast("Incorrect math answer. Try again.", true);
+            generateCaptcha();
+            return;
+        }
+
+        if (!currentTaskId || !currentUser) return;
+
+        deleteModal.classList.add('hidden');
+        activeTaskCard.classList.add('hidden');
+        loadingState.classList.remove('hidden');
+
+        try {
+            const res = await fetch(`${API_URL}/tasks/${currentTaskId}`, {
+                method: 'DELETE',
+                headers: { 'x-username': currentUser }
+            });
+
+            if (res.ok) {
+                showToast("Task permanently deleted.");
+                fetchCurrentTask();
+            } else {
+                showToast("Failed to delete task.", true);
+                loadingState.classList.add('hidden');
+                activeTaskCard.classList.remove('hidden');
+            }
+        } catch (error) {
+            console.error(error);
+            showToast("Network error.", true);
+            loadingState.classList.add('hidden');
+            activeTaskCard.classList.remove('hidden');
+        }
+    });
+
     function showToast(msg, isError = false) {
         toastMessage.textContent = msg;
         if (isError) {

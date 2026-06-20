@@ -219,3 +219,12 @@ async def mark_task_done(task_id: str, x_username: str = Header(...)):
     
     updated_task = await revisions_collection.find_one({"_id": ObjectId(task_id)})
     return format_task(updated_task)
+
+@app.delete("/tasks/{task_id}")
+async def delete_task(task_id: str, x_username: str = Header(...)):
+    task = await revisions_collection.find_one({"_id": ObjectId(task_id), "username": x_username})
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found or does not belong to you")
+        
+    await revisions_collection.delete_one({"_id": ObjectId(task_id)})
+    return {"status": "success", "detail": "Task deleted successfully"}
