@@ -376,8 +376,9 @@ document.addEventListener('DOMContentLoaded', () => {
         emptyState.classList.add('hidden');
 
         try {
-            const res = await fetch(`${API_URL}/tasks/next`, {
-                headers: { 'x-username': currentUser }
+            const res = await fetch(`${API_URL}/tasks/next?t=${Date.now()}`, {
+                headers: { 'x-username': currentUser },
+                cache: 'no-store'
             });
 
             if (res.ok) {
