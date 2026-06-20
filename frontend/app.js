@@ -137,6 +137,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Task Logic ---
+    const typeCards = document.querySelectorAll('.type-card');
+    const newTypeInput = document.getElementById('new-type');
+
+    typeCards.forEach(card => {
+        card.addEventListener('click', () => {
+            // Remove selected class from all
+            typeCards.forEach(c => c.classList.remove('selected'));
+            // Add to clicked
+            card.classList.add('selected');
+            // Update hidden input
+            newTypeInput.value = card.dataset.type;
+        });
+    });
+
     addBtn.addEventListener('click', () => {
         addModal.classList.remove('hidden');
     });

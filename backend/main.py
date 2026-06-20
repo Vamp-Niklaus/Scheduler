@@ -77,9 +77,29 @@ async def login(user: UserLogin):
 
 # --- Task Endpoints ---
 def format_task(doc) -> TaskResponse:
+    title = doc["title"]
+    content = doc.get("content", "").lower()
+    content_type = doc.get("content_type", "")
+    
+    if content_type == "url":
+        if "leetcode.com" in content:
+            title = f"👨‍💻 {title}"
+        elif "youtube.com" in content or "youtu.be" in content:
+            title = f"▶️ {title}"
+        elif "geeksforgeeks.org" in content:
+            title = f"🤓 {title}"
+        elif "github.com" in content:
+            title = f"🐙 {title}"
+        else:
+            title = f"🌐 {title}"
+    elif content_type == "text":
+        title = f"📝 {title}"
+    elif content_type == "image":
+        title = f"🖼️ {title}"
+
     return TaskResponse(
         id=str(doc["_id"]),
-        title=doc["title"],
+        title=title,
         content_type=doc["content_type"],
         content=doc["content"],
         stage=doc["stage"],

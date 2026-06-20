@@ -15,17 +15,13 @@ def calculate_fixed_schedule(current_stage: int) -> datetime:
     now = datetime.utcnow()
     
     if current_stage == 0:
-        # New task -> next revision in 3 "days" (15 seconds)
-        offset = 3 * DAY_IN_SECONDS
+        offset = 5
     elif current_stage == 1:
-        # Stage 1 -> next revision in 7 "days" (35 seconds)
-        offset = 7 * DAY_IN_SECONDS
+        offset = 10
     elif current_stage == 2:
-        # Stage 2 -> next revision in 21 "days" (105 seconds)
-        offset = 21 * DAY_IN_SECONDS
+        offset = 15
     else:
-        # Fallback if something goes wrong
-        offset = 21 * DAY_IN_SECONDS
+        offset = 20
 
     return now + timedelta(seconds=offset)
 

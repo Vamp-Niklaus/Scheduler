@@ -22,7 +22,7 @@
 body {
     background-color: var(--bg-color);
     color: var(--text-main);
-    min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     justify-content: center;
     background-image: radial-gradient(circle at top right, rgba(59, 130, 246, 0.15), transparent 400px),
@@ -32,11 +32,12 @@ body {
 .app-container {
     width: 100%;
     max-width: 480px;
-    height: 100vh;
+    height: 100dvh;
     display: flex;
     flex-direction: column;
     position: relative;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 /* Auth View */
@@ -134,10 +135,11 @@ body {
 /* Dashboard */
 .dashboard {
     flex: 1;
-    padding: 1rem 1.5rem;
+    padding: 1rem 1.5rem 3rem;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    overflow-y: auto;
 }
 
 .task-card {
@@ -315,6 +317,51 @@ body {
 .form-group textarea:focus {
     outline: none;
     border-color: var(--accent);
+}
+
+.type-cards-container {
+    display: flex;
+    gap: 0.8rem;
+    margin-top: 0.5rem;
+}
+
+.type-card {
+    flex: 1;
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 1rem 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.type-card i {
+    font-size: 1.2rem;
+}
+
+.type-card span {
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.type-card:hover {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+.type-card.selected {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: var(--accent);
+    color: var(--text-main);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
 }
 
 .submit-btn {
